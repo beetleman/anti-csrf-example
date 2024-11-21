@@ -1,6 +1,7 @@
 (ns beetleman.anti-csrf
-  (:require [beetleman.anti-csrf.core]
-            [mount.core :as mount])
+  (:require
+   [beetleman.anti-csrf.core]
+   [mount.core :as mount])
   (:gen-class))
 
 (defn start! [_args]

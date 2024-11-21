@@ -1,13 +1,14 @@
 (ns beetleman.anti-csrf.core
-  (:require [org.httpkit.server :as hk-server]
-            [mount.core :as mount :refer [defstate]]
-            [ring.util.response :as resp]
-            [reitit.ring :as ring]
-            [ring.middleware.cookies :refer [wrap-cookies]]
-            [reitit.ring.middleware.exception :refer [exception-middleware]]
-            [reitit.ring.middleware.parameters :refer [parameters-middleware]]
-            [reitit.core :as r]
-            [hiccup2.core :as h]))
+  (:require
+   [hiccup2.core :as h]
+   [mount.core :as mount :refer [defstate]]
+   [org.httpkit.server :as hk-server]
+   [reitit.core :as r]
+   [reitit.ring :as ring]
+   [reitit.ring.middleware.exception :refer [exception-middleware]]
+   [reitit.ring.middleware.parameters :refer [parameters-middleware]]
+   [ring.middleware.cookies :refer [wrap-cookies]]
+   [ring.util.response :as resp]))
 
 (def cookie-anti-csrf "cookie-anti-csrf")
 (defonce cookie-anti-csrf-value (str (java.util.UUID/randomUUID)))
@@ -93,6 +94,7 @@
     (println "Server" (str "`" name "`") "started on port" port)
     server))
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defstate server
   :start
   (run-server "app"
@@ -106,6 +108,7 @@
   :stop
   (server))
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defstate hacker-server
   :start
   (run-server "hacker"
@@ -114,19 +117,10 @@
                            (html
                             [:div
                              [:h1 "Hacker man 9000"]
-                             [:form {:action (str "http://localhost:" server-port "/delete")
+                             [:form {:action (str "http://localhost-2:" server-port "/delete")
                                      :method :post}
                               [:input {:type :submit
                                        :value "Get free cookies!"}]]]
                             :title "Freee Cookies!!"))))
   :stop
   (hacker-server))
-
-(comment
-  (mount/start)
-  (mount/stop))
-
-(defn -main
-  "Invoke me with clojure -M -m beetleman.anti-csrf"
-  [& args]
-  (mount/start))
