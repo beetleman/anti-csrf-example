@@ -1,0 +1,8 @@
+services:
+  my_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9999:9999"
+      - "8888:8888"
