@@ -14,7 +14,7 @@ RUN $JAVA_HOME/bin/jlink \
     --output /javaruntime
 
 # Define base image
-FROM debian:12-slim
+FROM fedora:41
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime $JAVA_HOME
