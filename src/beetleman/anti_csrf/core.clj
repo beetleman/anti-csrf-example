@@ -8,23 +8,12 @@
    [reitit.ring.middleware.exception :refer [exception-middleware]]
    [reitit.ring.middleware.parameters :refer [parameters-middleware]]
    [ring.middleware.cookies :refer [wrap-cookies]]
-   [ring.util.response :as resp]))
+   [ring.util.response :as resp]
+   [beetleman.anti-csrf.ws :as anti-csrf.ws]
+   [beetleman.anti-csrf.cookie :as cookie]))
 
-(def cookie-anti-csrf "cookie-anti-csrf")
-(defonce cookie-anti-csrf-value (str (java.util.UUID/randomUUID)))
 (def server-port 9999)
 (def hacker-server-port 8888)
-
-(defn set-cookie-anti-csrf-value [resp]
-  (resp/set-cookie resp
-                   cookie-anti-csrf
-                   cookie-anti-csrf-value
-                   {:same-site :strict
-                    :http-only true}))
-
-(defn has-cookie-anti-csrf? [{:keys [cookies]}]
-  (= cookie-anti-csrf-value
-     (get-in cookies [cookie-anti-csrf :value])))
 
 (defn url [{::r/keys [router]} name]
   (r/match->path (r/match-by-name router name)))
@@ -54,10 +43,10 @@
         [:input {:type :submit
                  :value "Delete"}]])
       (resp/response)
-      (set-cookie-anti-csrf-value)))
+      (cookie/set-anti-csrf-value)))
 
 (defn page-delete [r]
-  (let [target (if (has-cookie-anti-csrf? r)
+  (let [target (if (cookie/has-anti-csrf? r)
                  :handler/deleted
                  :handler/bad-hacker)]
     (resp/redirect (url r target) :see-other)))
@@ -81,6 +70,8 @@
 (defn make-router []
   [["/" {:name :handler/index
          :get  page-index}]
+
+   ["/ws" anti-csrf.ws/handler]
    ["/delete" {:name :handler/delete
                :post page-delete}]
    ["/deleted" {:name :handler/deleted
